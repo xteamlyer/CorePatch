@@ -10,7 +10,7 @@ import org.lsposed.corepatch.hook.ApplicationInfoHook
 import org.lsposed.corepatch.hook.AssetManagerHook
 import org.lsposed.corepatch.hook.InstallPackageHelperHook
 import org.lsposed.corepatch.hook.KeySetManagerServiceHook
-import org.lsposed.corepatch.hook.MessageDigestHook
+import org.lsposed.corepatch.hook.GlobalCryptoHook
 import org.lsposed.corepatch.hook.NtConfigListServiceImplHook
 import org.lsposed.corepatch.hook.PackageManagerServiceHook
 import org.lsposed.corepatch.hook.PackageManagerServiceUtilsHook
@@ -29,6 +29,12 @@ class XposedMain : XposedModule() {
         XposedHelper.setXposedModule(this)
     }
 
+    override fun onPackageLoaded(param: XposedModuleInterface.PackageLoadedParam) {
+        super.onPackageLoaded(param)
+        XposedHelper.setHostClassLoader(param.defaultClassLoader)
+        GlobalCryptoHook.init()
+    }
+
     override fun onSystemServerStarting(param: XposedModuleInterface.SystemServerStartingParam) {
         super.onSystemServerStarting(param)
         XposedHelper.log("onSystemServerStarting: Current sdk version is ${Build.VERSION.SDK_INT}")
@@ -44,7 +50,7 @@ class XposedMain : XposedModule() {
             AssetManagerHook,
             InstallPackageHelperHook,
             KeySetManagerServiceHook,
-            MessageDigestHook,
+            GlobalCryptoHook,
             NtConfigListServiceImplHook,
             PackageManagerServiceHook,
             PackageManagerServiceUtilsHook,
